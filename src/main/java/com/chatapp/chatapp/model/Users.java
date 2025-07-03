@@ -1,9 +1,9 @@
-package com.chatapp.model;
+package com.chatapp.chatapp.model;
 
 import jakarta.persistence.*;
 
 @Entity
-public class User {
+public class Users {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,9 +18,9 @@ public class User {
     private String displayName;
     private boolean onlineStatus;
 
-    public User() {}
+    public Users() {}
 
-    public User(String username, String password, String displayName) {
+    public Users(String username, String password, String displayName) {
        this.username = username;
        this.password = password;
        this.displayName = displayName;
@@ -31,7 +31,7 @@ public class User {
     public void setId(Long id) {this.id = id;}
 
     public String getUsername() {return username;}
-    public String setUsername(String username) {this.username = username;}
+    public void setUsername(String username) {this.username = username;}
 
     public String getPassword() {return password;}
     public void setPassword(String password) {this.password = password;}
