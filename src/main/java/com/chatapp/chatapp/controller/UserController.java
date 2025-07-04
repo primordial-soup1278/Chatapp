@@ -19,7 +19,6 @@ public class UserController {
     public String test() {
         return "Hello from user controller!";
     }
-
     @GetMapping
     public ResponseEntity<List<Users>> getAllUsers() {
         List<Users> users = userRepository.findAll();

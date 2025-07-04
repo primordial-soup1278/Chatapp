@@ -23,6 +23,16 @@ public class MessageController {
     private UserRepository userRepository;
 
 
+    // setting a message as read
+    @PutMapping("/{id}/read")
+    public ResponseEntity<Void> markMessageAsRead(@PathVariable Long id) {
+        Message message = messageRepository.findById(id).orElseThrow();
+        message.setRead(true);
+        message.setReadAt(LocalDateTime.now());
+
+        messageRepository.save(message);
+        return ResponseEntity.ok().build();
+    }
     // getting messages between two users
     @GetMapping("/between/{senderId}/{recipientId}")
     public ResponseEntity<List<Message>> getMessagesBetweenUsers(@PathVariable Long senderId,
