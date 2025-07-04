@@ -1,26 +1,35 @@
 package com.chatapp.chatapp.controller;
 
-import com.chatapp.chatapp.dto.MessageDto;
-import com.chatapp.chatapp.model.Message;
-import com.chatapp.chatapp.model.Users;
-import com.chatapp.chatapp.repository.MessageRepository;
-import com.chatapp.chatapp.repository.UserRepository;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import com.chatapp.chatapp.model.Message;
+import com.chatapp.chatapp.repository.MessageRepository;
+import com.chatapp.chatapp.repository.UserRepository;
 
 @RestController
-@RequestMapping("/messages")
+@RequestMapping("/messaging/api")
 public class MessageController {
     @Autowired
     private MessageRepository messageRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
 
     // setting a message as read
@@ -29,7 +38,6 @@ public class MessageController {
         Message message = messageRepository.findById(id).orElseThrow();
         message.setRead(true);
         message.setReadAt(LocalDateTime.now());
-
         messageRepository.save(message);
         return ResponseEntity.ok().build();
     }
@@ -52,20 +60,29 @@ public class MessageController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 404
         }
     }
-    @PostMapping("/send")
-    public ResponseEntity<?> sendMessage(@RequestBody MessageDto messageDto) {
-        Optional<Users> optionalSender = userRepository.findById(messageDto.getSenderId());
-        Optional<Users> optionalRecipient = userRepository.findById(messageDto.getRecipientId());
 
-        if (optionalSender.isEmpty() || optionalRecipient.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("invalid sender or receiver");
-        }
-        Message message = new Message();
-        message.setSender(optionalSender.get());
-        message.setRecipient(optionalRecipient.get());
-        message.setContent(messageDto.getContent());
+    // broadcasting the message
+    @MessageMapping("/chat.send")
+    @SendTo("/topic/public")
+    public Message sendMessage(@Payload Message message) {
         message.setTimestamp(LocalDateTime.now());
         messageRepository.save(message);
-        return ResponseEntity.ok("message sent successfully");
+        return message;
+    }
+    @MessageMapping("/char.newUser")
+    @SendTo("/topic/public")
+    public Message newUser(@Payload Message message) {
+        return message;
+    }
+
+    @MessageMapping("/chat.private")
+    public void sendPrivateMessage(@Payload Message message) {
+        message.setTimestamp(LocalDateTime.now());
+        messageRepository.save(message);
+        messagingTemplate.convertAndSendToUser(
+                message.getRecipient().getUsername(),
+                "/queue/messages",
+                message
+        );
     }
 }
