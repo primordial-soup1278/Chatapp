@@ -1,6 +1,17 @@
 package com.chatapp.chatapp.model;
 
-import jakarta.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 
 @Entity
 public class Users {
@@ -17,6 +28,14 @@ public class Users {
 
     private String displayName;
     private boolean onlineStatus;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "user_friends",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "friend_id")
+    )
+    private Set<Users> friends = new HashSet<>();
 
     public Users() {}
 
@@ -41,5 +60,25 @@ public class Users {
 
     public boolean getOnlineStatus() {return onlineStatus;}
     public void setOnlineStatus(boolean onlineStatus) {this.onlineStatus = onlineStatus;}
+
+    public Set<Users> getFriends() {return friends;}
+    public void setFriends(Set<Users> friends) {this.friends = friends;}
+
+    // Helper methods for managing friends
+    public void addFriend(Users friend) {
+        this.friends.add(friend);
+        friend.getFriends().add(this);
+    }
+
+    public void removeFriend(Users friend) {
+        this.friends.remove(friend);
+        friend.getFriends().remove(this);
+    }
+
+    public boolean isFriendWith(Users user) {
+        return this.friends.contains(user);
+    }
 }
+
+
 
