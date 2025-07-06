@@ -1,0 +1,12 @@
+
+.homeContent-container {
+    height: 100vh;
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+}
+.title-text {
+    color: white;
+    font-family: 'Roboto', sans-serif;
+}
