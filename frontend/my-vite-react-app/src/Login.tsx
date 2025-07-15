@@ -54,7 +54,7 @@ const LoginContent: React.FC<LoginContentProps> = ({
 const Login = () => {
     const usernameRef = useRef<HTMLInputElement>(null);
     const passwordRef = useRef<HTMLInputElement>(null);
-    const [registerScreen, setRegisterScreen] = useState(false);
+    const [registerScreen, setRegisterScreen] = useState<boolean>(false);
     const {isLoggedIn, setIsLoggedIn} = useAuth();
     const navigate = useNavigate();
 
@@ -85,12 +85,19 @@ const Login = () => {
                 
             </div>
             <div className="login-container">
-               <LoginContent
-                usernameRef={usernameRef}
-                passwordRef={passwordRef}
-                handleLogin={handleLogin}
-                setRegisterScreen={setRegisterScreen}
-                /> 
+                {registerScreen === true ? (
+                    <Register 
+                        registerScreen={registerScreen}
+                        setRegisterScreen={setRegisterScreen} 
+                    />
+                ) : (
+                    <LoginContent
+                     usernameRef={usernameRef}
+                     passwordRef={passwordRef}
+                     handleLogin={handleLogin}
+                     setRegisterScreen={setRegisterScreen}
+                     /> 
+                )}
             </div>
 
         </div>

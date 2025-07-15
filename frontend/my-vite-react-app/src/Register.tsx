@@ -18,9 +18,35 @@ const Register: React.FC<RegisterProps> = ({registerScreen, setRegisterScreen}) 
         }
     }
     return (
-        <div>
-
+    <div className="register-input-container">
+        <p>Register</p>
+        <div className="input-group">
+            <label>Username</label>
+            <input 
+            className = "text-input"
+            ref = {usernameRef}
+            />
         </div>
+        <div className="input-group">
+            <label>Password</label>
+            <input 
+            className="text-input"
+            ref = {passwordRef}
+            />
+        </div>
+        <div className="input-group">
+            <label>confirm password</label>
+            <input 
+            className="text-input"
+            ref = {passwordConfirmRef}
+            />
+        </div>
+        <div className = "login-button-container">
+            <button className="login-button" onClick={handleSubmit}>
+                Register
+            </button>
+        </div>
+    </div>
     );
 }
 
