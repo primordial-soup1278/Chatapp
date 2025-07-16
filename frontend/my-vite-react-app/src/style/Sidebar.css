@@ -25,3 +25,42 @@
     font-size: 16px;
     border: none;
 }
+
+.add-friend-container {
+    margin-top: auto;
+    background-color: #232428;
+    height: 300px;
+    border-radius: 20px;
+    padding: 16px;
+    gap: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.add-friend-btn {
+  background: #5865f2; /* Discord-like blue, or your choice */
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+.add-friend-btn:active {
+    background: #3c45a5;
+}
+
+.add-friend-search-bar {
+    display: flex;
+    align-items: center;
+    background: #363940;
+    border-radius: 10px;
+}
+.add-friend-search-bar .input-text {
+    border: none;
+    background: transparent;
+    flex: 1;
+    padding: 10px;
+    border-radius: 30px 0 0 30px;
+    outline: none; 
+}

@@ -1,5 +1,6 @@
 import "./style/Login.css";
 import { useRef } from "react";
+import { registerUser } from "./Requests";
 type RegisterProps = {
     registerScreen: boolean;
     setRegisterScreen : React.Dispatch<React.SetStateAction<boolean>>;
@@ -14,6 +15,9 @@ const Register: React.FC<RegisterProps> = ({registerScreen, setRegisterScreen}) 
         const passwordConfirm = passwordConfirmRef.current?.value.trim() || "";
         if (username && password && password === passwordConfirm) {
             // insert user into database
+            const apiurl = import.meta.env.VITE_USER_URL + "/register";
+            console.log("API URL: ", apiurl);
+            registerUser(apiurl, username, password);
             setRegisterScreen(false);
         }
     }
