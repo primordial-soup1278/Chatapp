@@ -1,5 +1,5 @@
 import "./style/Login.css";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { registerUser } from "./Requests";
 type RegisterProps = {
     registerScreen: boolean;
@@ -9,7 +9,8 @@ const Register: React.FC<RegisterProps> = ({registerScreen, setRegisterScreen}) 
     const usernameRef = useRef<HTMLInputElement>(null);
     const passwordRef = useRef<HTMLInputElement>(null);
     const passwordConfirmRef = useRef<HTMLInputElement>(null);
-    const handleSubmit = () => {
+    const [error, setError] = useState<string | null>(null);
+    const handleSubmit = async () => {
         const username = usernameRef.current?.value.trim() || "";
         const password = passwordRef.current?.value.trim() || "";
         const passwordConfirm = passwordConfirmRef.current?.value.trim() || "";
@@ -17,10 +18,24 @@ const Register: React.FC<RegisterProps> = ({registerScreen, setRegisterScreen}) 
             // insert user into database
             const apiurl = import.meta.env.VITE_USER_URL + "/register";
             console.log("API URL: ", apiurl);
-            registerUser(apiurl, username, password);
-            setRegisterScreen(false);
+            try {
+                await registerUser(apiurl, username, password);
+                setRegisterScreen(false);   
+            }
+            catch (err : unknown) {
+                setError("Registration failed: Please try again.");
+                if (err instanceof Error) {
+                    console.error("Registration error: ", err.message);
+                }
+                else 
+                    console.error("Registration error:", err);
+            }
         }
-    }
+        else {
+            setError("Please fill all fields and make sure passwords match.");
+        }
+    };
+
     return (
     <div className="register-input-container">
         <p>Register</p>
@@ -50,6 +65,7 @@ const Register: React.FC<RegisterProps> = ({registerScreen, setRegisterScreen}) 
                 Register
             </button>
         </div>
+        {error && <div className="error-message">{error}</div>}
     </div>
     );
 }

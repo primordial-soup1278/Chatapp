@@ -16,8 +16,29 @@ export const registerUser = async (apiurl : string, username : string, password:
         );
         return response.data;
     }
-    catch (error) {
+    catch (error : any) {
         console.log("Registration failed", error);
+        throw error;
+    }
+}
+
+export const loginRequest = async (apiurl : string, username : string, password : string) => {
+    try {
+       const response = await axios.post(apiurl, {
+            "username" : username,
+            "password" : password
+            },
+            {
+                 headers: {
+                     "Accept": "application/json",
+                     "Content-Type": "application/json"
+                 }
+        });
+
+        return response.data;
+    }
+    catch(error : any) {
+        console.error("login failed", error);
         throw error;
     }
 }
