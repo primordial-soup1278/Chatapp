@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -32,8 +34,10 @@ public class AuthController {
             if(!users.getPassword().equals(loginRequest.getPassword())) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
-
-            return ResponseEntity.ok("login success");
+            Map<String, Object> userInfo = new HashMap<>();
+            userInfo.put("id", users.getId());
+            userInfo.put("username", users.getUsername());
+            return ResponseEntity.ok(userInfo);
         }
 
     }

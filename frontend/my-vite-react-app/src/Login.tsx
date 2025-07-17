@@ -1,9 +1,9 @@
 import { useRef, useEffect, useState} from "react";
 import { useNavigate } from "react-router-dom";
 import "./style/Login.css";
-import { useAuth } from "./AuthContext";
 import Register from "./Register";
 import { loginRequest } from "./Requests";
+import { useAuth } from "./useAuth";
 
 type LoginContentProps = {
   usernameRef: React.RefObject<HTMLInputElement | null>;
@@ -57,7 +57,7 @@ const Login = () => {
     const passwordRef = useRef<HTMLInputElement>(null);
     const [registerScreen, setRegisterScreen] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
-    const {isLoggedIn, setIsLoggedIn} = useAuth();
+    const {isLoggedIn, setIsLoggedIn, setUser} = useAuth();
     const navigate = useNavigate();
 
     const handleLogin = async () => {
@@ -66,7 +66,9 @@ const Login = () => {
         console.log("Username: ", username, "Password: ", password);
         const apiurl = import.meta.env.VITE_SECURITY_URL + "/login";
         try {
-            await loginRequest(apiurl, username, password);
+            const response = await loginRequest(apiurl, username, password);
+            console.log("data: ", response);
+            setUser(response);
             setIsLoggedIn(true);
             navigate("home");
         }
@@ -79,10 +81,10 @@ const Login = () => {
                 console.error("login error: ", err);
             
         }
-        if(username === "admin" && password === "password") {
+        /*if(username === "admin" && password === "password") {
             setIsLoggedIn(true);
             navigate("/home");
-        }
+        }*/
     }
 
     useEffect(() => {
