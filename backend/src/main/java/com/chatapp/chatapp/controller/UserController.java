@@ -1,8 +1,8 @@
 package com.chatapp.chatapp.controller;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.chatapp.chatapp.model.Users;
 import com.chatapp.chatapp.repository.UserRepository;
+
+import javax.swing.text.html.Option;
 
 @RestController
 @RequestMapping("/users")
@@ -50,6 +52,7 @@ public class UserController {
     // creating a new user
     @PostMapping("/register")
     public ResponseEntity<Users> createUser(@RequestBody Users users) {
+        System.out.println("register");
         Users saved = userRepository.save(users);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved); // 201
     }
@@ -65,8 +68,8 @@ public class UserController {
         }
     }
 
-    @GetMapping("/{id}/friends")
-    public ResponseEntity<Set<Users>> getUserFriends(@PathVariable Long id) {
+    @GetMapping("/by-id/{id}/friends")
+    public ResponseEntity<List<Long>> getUserFriendsId(@PathVariable Long id) {
         Optional<Users> optionalUser = userRepository.findById(id);
         
         if(optionalUser.isPresent()) {
@@ -77,7 +80,47 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
     }
+    @GetMapping("/by-username/{username}/friends")
+    public ResponseEntity<List<Long>> getUserFriendsUsername(@PathVariable String username) {
+        Optional<Users> optionalUser = userRepository.findByUsername(username);
+        if(optionalUser.isPresent()) {
+            Users user = optionalUser.get();
+            return ResponseEntity.ok(user.getFriends());
+        }
+        return ResponseEntity.notFound().build();
+    }
 
+    @PostMapping("/by-username/{username}/friends/{friendName}")
+    public ResponseEntity<String> addFriendUsername(@PathVariable String username, @PathVariable String friendName) {
+        System.out.println("adding friend...");
+        Optional<Users> optionalUser = userRepository.findByUsername(username);
+        Optional<Users> optionalFriend = userRepository.findByUsername(friendName);
+        if (!optionalUser.isPresent()) {
+            System.out.println("user not found");
+            return ResponseEntity.notFound().build();
+        }
+        if(!optionalFriend.isPresent()) {
+            System.out.println("Friend not found");
+            return ResponseEntity.notFound().build();
+        }
+
+        Users user = optionalUser.get();
+        Users friend = optionalFriend.get();
+
+        if(user.getUsername().equals(friend.getUsername())) {
+            System.out.println("cannot add yourself");
+            return ResponseEntity.badRequest().body("cannot add yourself");
+        }
+        if(user.isFriendWith(friend)) {
+            System.out.println("already friends");
+            return ResponseEntity.badRequest().body("Already friends");
+        }
+        System.out.println("Success?");
+        user.addFriend(friend);
+        userRepository.save(user);
+        userRepository.save(friend);
+        return ResponseEntity.ok("Friend added successfully");
+    }
     @PostMapping("/{userId}/friends/{friendId}")
     public ResponseEntity<String> addFriend(@PathVariable Long userId, @PathVariable Long friendId) {
         Optional<Users> optionalUser = userRepository.findById(userId);

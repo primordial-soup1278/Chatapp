@@ -42,3 +42,37 @@ export const loginRequest = async (apiurl : string, username : string, password 
         throw error;
     }
 }
+
+export const friendRequest = async (apiurl : string) => {
+    try {
+        const response = await axios.post(apiurl);
+        console.log(response.data);
+        return response.data;
+    }
+    catch(err : any) {
+        console.error("adding friend failed", err);
+        throw err;
+    }
+}
+
+export const getRequestGeneral = async (apiurl : string) => {
+    try {
+        const response = await axios.get(apiurl, 
+            {
+                headers : {
+                    "Content-Type" : "application/json",
+                    "Accept" : "application/json"
+                }
+            }
+        );
+        return response.data;
+    }
+    catch(err : unknown) {
+        if (err instanceof Error)
+            console.error("GET request failed", err.message);
+        else
+            console.error("GET request failed", err);
+        throw err;
+    }
+}
+

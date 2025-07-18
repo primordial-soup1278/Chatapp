@@ -4,9 +4,7 @@
     min-width: 0;
     min-height: 100vh;
     padding: 15px;
-    border: solid;
-    border-color: aqua;
-    border-width: 3px;
+    
 }
 .title-text {
     color: white;
