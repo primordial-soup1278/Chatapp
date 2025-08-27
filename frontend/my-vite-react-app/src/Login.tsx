@@ -81,10 +81,6 @@ const Login = () => {
                 console.error("login error: ", err);
             
         }
-        /*if(username === "admin" && password === "password") {
-            setIsLoggedIn(true);
-            navigate("/home");
-        }*/
     }
 
     useEffect(() => {

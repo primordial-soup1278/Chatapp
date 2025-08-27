@@ -78,6 +78,7 @@ const Sidebar = () => {
 
    const navigateFriendChat = (friend : any) => {
       console.log("clicked on friend: ", friend);
+      navigate("/chat", {state: {friend}});
    }
    return (
       <div className="sidebar-container">
