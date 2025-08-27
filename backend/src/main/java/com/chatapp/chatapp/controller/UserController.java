@@ -90,6 +90,7 @@ public class UserController {
         return ResponseEntity.notFound().build();
     }
 
+    // adding a new friend
     @PostMapping("/by-username/{username}/friends/{friendName}")
     public ResponseEntity<String> addFriendUsername(@PathVariable String username, @PathVariable String friendName) {
         System.out.println("adding friend...");
@@ -121,6 +122,8 @@ public class UserController {
         userRepository.save(friend);
         return ResponseEntity.ok("Friend added successfully");
     }
+
+    // adding a new friend by id
     @PostMapping("/{userId}/friends/{friendId}")
     public ResponseEntity<String> addFriend(@PathVariable Long userId, @PathVariable Long friendId) {
         Optional<Users> optionalUser = userRepository.findById(userId);

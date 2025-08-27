@@ -67,7 +67,7 @@ const Login = () => {
         const apiurl = import.meta.env.VITE_SECURITY_URL + "/login";
         try {
             const response = await loginRequest(apiurl, username, password);
-            console.log("data: ", response);
+            console.log("response: ", response);
             setUser(response);
             setIsLoggedIn(true);
             navigate("home");

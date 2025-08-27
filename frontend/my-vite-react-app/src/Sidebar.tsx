@@ -1,12 +1,45 @@
 import { useEffect, useState } from "react";
 import "./style/Sidebar.css";
 import { useAuth } from "./useAuth";
-import { friendRequest } from "./Requests";
+import { friendRequest, getRequestGeneral } from "./Requests";
+import { useNavigate } from "react-router-dom";
+
+// make the friends list clickable to open chat with that friend
 const Sidebar = () => {
+   const navigate = useNavigate();
    const [inputValue, setInputValue] = useState<string>("");
    const [addUserInput, setAddUserInput] = useState<string>("");
-   const {user} = useAuth();
+   const [friendsList, setFriendsList] = useState<Array<any>>([]);
+   const {user, setUser} = useAuth();
    const [error, setError] = useState<string | null>(null);
+
+   const getFriends = async (apiURL : string) => {
+      try {
+         const response = await getRequestGeneral(apiURL);
+         return response;
+      }
+      catch (err : unknown) {
+         if (err instanceof Error)
+            console.error("error fetching friends", err.message);
+         else 
+            console.error("error fetching friends", err);
+      }
+   }
+   const fetchFriends = async () => {
+         let arrayOfFriends : Array<any> = [];
+         for (const friend of user?.friends || []) {
+            const apiurl = import.meta.env.VITE_USER_URL + `/${friend}`;
+            const friendData = await getFriends(apiurl);
+            if (friendData)
+               arrayOfFriends.push(friendData);
+         }
+         setFriendsList(arrayOfFriends);
+      }
+   // For fetching friend list
+   useEffect(() => {
+      // fetching friends when user data changes
+      fetchFriends();
+   }, [user]);
    const handleInputValue = (e : React.ChangeEvent<HTMLInputElement>) => {
       setInputValue(e.target.value.trim()) 
    }
@@ -18,8 +51,13 @@ const Sidebar = () => {
       console.log("adding friend");
       try {
          const apiurl = import.meta.env.VITE_USER_URL + `/by-username/${user?.username}/friends/${addUserInput.trim()}`;
+         const userApiUrl = import.meta.env.VITE_USER_URL + `/${user?.id}`;
          console.log("link: ", apiurl)
          await friendRequest(apiurl);
+         const updatedUser = await getRequestGeneral(userApiUrl);
+         setUser(updatedUser);
+
+         //await fetchFriends(); // Refresh the friends list after adding a new friend
 
       }
       catch (err : unknown) {
@@ -38,6 +76,9 @@ const Sidebar = () => {
       console.log(addUserInput);
    },[addUserInput]);
 
+   const navigateFriendChat = (friend : any) => {
+      console.log("clicked on friend: ", friend);
+   }
    return (
       <div className="sidebar-container">
          <div className="sidebar-title">
@@ -51,6 +92,22 @@ const Sidebar = () => {
             onChange = {handleInputValue}
             className = "input-text"
             />
+         </div>
+         <div className="friend-chats">
+            <h2>Friends</h2>
+            <div className="friend-list">
+               {friendsList.map((friend) => (
+                  <div key={friend.id} 
+                  className="friend-item"
+                  onClick={() => navigateFriendChat(friend)}>
+                     <p>{friend.username}</p>
+                  </div>
+               ))}
+               {friendsList.length === 0 && (
+                  <p>No friends to display</p>
+               )}
+               
+            </div>
          </div>
 
          <div className = "add-friend-container">

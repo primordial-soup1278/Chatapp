@@ -37,6 +37,7 @@ public class AuthController {
             Map<String, Object> userInfo = new HashMap<>();
             userInfo.put("id", users.getId());
             userInfo.put("username", users.getUsername());
+            userInfo.put("friends", users.getFriends());
             return ResponseEntity.ok(userInfo);
         }
 
