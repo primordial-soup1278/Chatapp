@@ -41,21 +41,24 @@
 }
 
 .send-button {
-    /*position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    height: 32px;
-    padding: 0 16px;
-    border-radius: 16px;
-    border: none;
-    background: #007bff;
-    color: #fff;
-    cursor: pointer;*/
     background: #5865f2; /* Discord-like blue, or your choice */
     color: #fff;
     border: none;
     cursor: pointer;
     font-weight: bold;
     transition: background 0.2s;
+}
+
+.messages-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.message-item {
+    padding: 20px;
+    border: 1px;
+    border-style: solid;
+    border-color: black;
+    background-color: blue;
+    width: 56px;
 }

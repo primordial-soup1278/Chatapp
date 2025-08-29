@@ -4,7 +4,7 @@ import { useAuth } from "./useAuth";
 import { friendRequest, getRequestGeneral } from "./Requests";
 import { useNavigate } from "react-router-dom";
 
-// make the friends list clickable to open chat with that friend
+// TODO: make the friends list clickable to open chat with that friend
 const Sidebar = () => {
    const navigate = useNavigate();
    const [inputValue, setInputValue] = useState<string>("");
@@ -16,9 +16,12 @@ const Sidebar = () => {
    const getFriends = async (apiURL : string) => {
       try {
          const response = await getRequestGeneral(apiURL);
+         setError(null);
          return response;
       }
       catch (err : unknown) {
+         setError("failed to fetch friends from server");
+
          if (err instanceof Error)
             console.error("error fetching friends", err.message);
          else 
@@ -56,7 +59,7 @@ const Sidebar = () => {
          await friendRequest(apiurl);
          const updatedUser = await getRequestGeneral(userApiUrl);
          setUser(updatedUser);
-
+         setError(null);
          //await fetchFriends(); // Refresh the friends list after adding a new friend
 
       }
@@ -68,13 +71,6 @@ const Sidebar = () => {
             console.error("error adding friend", err);
       }
    }
-   useEffect(() => {
-      console.log(inputValue);
-   },[inputValue]);
-
-   useEffect(() => {
-      console.log(addUserInput);
-   },[addUserInput]);
 
    const navigateFriendChat = (friend : any) => {
       console.log("clicked on friend: ", friend);

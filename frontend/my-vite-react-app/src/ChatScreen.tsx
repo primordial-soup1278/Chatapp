@@ -3,6 +3,7 @@ import { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
+import { useAuth } from "./useAuth";
 import "./style/ChatScreen.css";
 
 const ChatScreen = () => {
@@ -10,10 +11,10 @@ const ChatScreen = () => {
     const navigate = useNavigate();
     const stompClientRef = useRef<Client | null>(null);
     const location = useLocation();
-    const {friend, user} = location.state || {};
+    const {friend} = location.state || {};
+    const {user} = useAuth();
     const [messages, setMessages] = useState<Array<any>>([]);
 
-    // TODO: create a function to fetch chat history with this friend
     const fetchChatHistory = async () => {
         const res = await fetch(
             `${import.meta.env.VITE_USER_URL.replace("/users","/messaging/api")}/between/${user.id}/${friend.id}`,
@@ -24,7 +25,7 @@ const ChatScreen = () => {
 
 
     useEffect(() => {
-        //TODO: fetch the chat history here
+        fetchChatHistory();
         console.log("messages: ",messages);
     },[messages]);
 
@@ -40,7 +41,7 @@ const ChatScreen = () => {
                     const receivedMessage = JSON.parse(message.body);
                     console.log("Received message: ", receivedMessage);
 
-                    //TODO: update state with setMessage
+                    setMessages(prev => [...prev, receivedMessage]);
                 });
             }
         });
@@ -78,6 +79,13 @@ const ChatScreen = () => {
 
         {/* chat between user's is displayed here */}
         <div className = "messages-container">
+            {messages.map((msg, index) => (
+                <div className = "message-item" key={index}>
+                    <p>
+                        <strong>{msg.sender.username}</strong>: {msg.content}
+                    </p>
+                </div>
+            ))}
             {messages.length === 0 && (
                 <p>No messages yet! Start the conversation</p>
             )}
@@ -89,7 +97,7 @@ const ChatScreen = () => {
                 className="message-input" 
                 placeholder="Enter messages here"
                 ref={messageRef}
-                onKeyDown={e =>{
+                onKeyDown={e => {
                     if (e.key === 'Enter') {
                         handleSendMessage();
                     }
@@ -102,6 +110,5 @@ const ChatScreen = () => {
         </div>
     </div>
 }
-
 
 export default ChatScreen;
