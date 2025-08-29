@@ -30,7 +30,12 @@ public class MessageController {
     private UserRepository userRepository;
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
-
+    
+    @GetMapping("")
+    public ResponseEntity<List<Message>> getAllMessages() {
+       List<Message> messages = messageRepository.findAll();
+       return ResponseEntity.ok().body(messages);
+    }
 
     // setting a message as read
     @PutMapping("/{id}/read")
@@ -62,6 +67,7 @@ public class MessageController {
     }
 
     // broadcasting the message
+    // in case I add chat groups in the future
     @MessageMapping("/chat.send")
     @SendTo("/topic/public")
     public Message sendMessage(@Payload Message message) {
@@ -75,6 +81,7 @@ public class MessageController {
         return message;
     }
 
+    // sending a message to your friend
     @MessageMapping("/chat.private")
     public void sendPrivateMessage(@Payload Message message) {
         message.setTimestamp(LocalDateTime.now());

@@ -1,17 +1,70 @@
 import { useLocation } from "react-router-dom";
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import SockJS from "sockjs-client";
+import { Client } from "@stomp/stompjs";
 import "./style/ChatScreen.css";
+
 const ChatScreen = () => {
     const messageRef = useRef<HTMLInputElement>(null);
     const navigate = useNavigate();
-
+    const stompClientRef = useRef<Client | null>(null);
     const location = useLocation();
-    const {friend} = location.state || {};
+    const {friend, user} = location.state || {};
+    const [messages, setMessages] = useState<Array<any>>([]);
 
+    // TODO: create a function to fetch chat history with this friend
+    const fetchChatHistory = async () => {
+        const res = await fetch(
+            `${import.meta.env.VITE_USER_URL.replace("/users","/messaging/api")}/between/${user.id}/${friend.id}`,
+        );
+        const history = await res.json();
+        setMessages(history);
+    }
+
+
+    useEffect(() => {
+        //TODO: fetch the chat history here
+        console.log("messages: ",messages);
+    },[messages]);
+
+    useEffect(() => {
+        const socket = new SockJS(import.meta.env.VITE_USER_URL.replace("/users", "/ws"));
+        const stompClient = new Client({
+            webSocketFactory: () => socket,
+            reconnectDelay: 5000,
+            onConnect: () => {
+                console.log("connected to websocket");
+                
+                stompClient.subscribe("user/queue/messages", (message) => {
+                    const receivedMessage = JSON.parse(message.body);
+                    console.log("Received message: ", receivedMessage);
+
+                    //TODO: update state with setMessage
+                });
+            }
+        });
+        stompClient.activate();
+        stompClientRef.current = stompClient;
+        return () => {
+            stompClient.deactivate();
+        }
+        
+    },[])
     const handleSendMessage = () => {
         const message = messageRef.current?.value;
-        if (message) {
+        if (message && stompClientRef.current && friend) {
+            stompClientRef.current.publish({
+                destination: "/app/chat.private",
+                body: JSON.stringify({
+                    content: message,
+                    sender: {username : user?.username},
+                    recipient: {username: friend.username} ,
+                    timestamp: new Date().toISOString(),
+
+                }),
+            });
+
             console.log("Sending message: ", message);
             // clearing the input field after sending message
             messageRef.current.value = "";
@@ -23,6 +76,12 @@ const ChatScreen = () => {
         </button>
         <h1>Chatting with {friend ? friend.username : "Unknown User"}</h1>
 
+        {/* chat between user's is displayed here */}
+        <div className = "messages-container">
+            {messages.length === 0 && (
+                <p>No messages yet! Start the conversation</p>
+            )}
+        </div>
 
         <div className="input-container">
             <div className="input-wrapper">
