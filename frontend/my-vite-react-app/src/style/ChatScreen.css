@@ -39,7 +39,9 @@
     position: relative;
     width: 100%;
 }
-
+.chatScreen-container h1 {
+    margin-bottom : 20px;
+}
 .send-button {
     background: #5865f2; /* Discord-like blue, or your choice */
     color: #fff;

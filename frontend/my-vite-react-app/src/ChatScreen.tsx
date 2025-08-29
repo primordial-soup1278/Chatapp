@@ -17,7 +17,7 @@ const ChatScreen = () => {
 
     const fetchChatHistory = async () => {
         const res = await fetch(
-            `${import.meta.env.VITE_USER_URL.replace("/users","/messaging/api")}/between/${user.id}/${friend.id}`,
+            `${import.meta.env.VITE_USER_URL.replace("/users","/messaging/api")}/between/${user?.id}/${friend?.id}`,
         );
         const history = await res.json();
         setMessages(history);
@@ -27,7 +27,7 @@ const ChatScreen = () => {
     useEffect(() => {
         fetchChatHistory();
         console.log("messages: ",messages);
-    },[messages]);
+    },[user?.id, friend?.id]);
 
     useEffect(() => {
         const socket = new SockJS(import.meta.env.VITE_USER_URL.replace("/users", "/ws"));
@@ -54,13 +54,13 @@ const ChatScreen = () => {
     },[])
     const handleSendMessage = () => {
         const message = messageRef.current?.value;
-        if (message && stompClientRef.current && friend) {
+        if (message && stompClientRef.current && friend && user) {
             stompClientRef.current.publish({
                 destination: "/app/chat.private",
                 body: JSON.stringify({
                     content: message,
-                    sender: {username : user?.username},
-                    recipient: {username: friend.username} ,
+                    sender: {id : user?.id},
+                    recipient: {id : friend?.id} ,
                     timestamp: new Date().toISOString(),
 
                 }),
@@ -68,7 +68,11 @@ const ChatScreen = () => {
 
             console.log("Sending message: ", message);
             // clearing the input field after sending message
-            messageRef.current.value = "";
+            if (messageRef.current)
+                messageRef.current.value = "";
+        }
+        else {
+            console.error("Cannot send message. Missing data.");
         }
     }
     return <div className="chatScreen-container">

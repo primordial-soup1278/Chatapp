@@ -11,6 +11,7 @@ type AuthContextType = {
 interface User {
     id : string;
     username: string;
+    friends: Array<number>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);

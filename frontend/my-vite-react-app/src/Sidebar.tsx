@@ -3,13 +3,12 @@ import "./style/Sidebar.css";
 import { useAuth } from "./useAuth";
 import { friendRequest, getRequestGeneral } from "./Requests";
 import { useNavigate } from "react-router-dom";
-
-// TODO: make the friends list clickable to open chat with that friend
+import type { user_t } from "./Types";
 const Sidebar = () => {
    const navigate = useNavigate();
    const [inputValue, setInputValue] = useState<string>("");
    const [addUserInput, setAddUserInput] = useState<string>("");
-   const [friendsList, setFriendsList] = useState<Array<any>>([]);
+   const [friendsList, setFriendsList] = useState<Array<user_t>>([]);
    const {user, setUser} = useAuth();
    const [error, setError] = useState<string | null>(null);
 
@@ -36,6 +35,7 @@ const Sidebar = () => {
             if (friendData)
                arrayOfFriends.push(friendData);
          }
+         console.log("array of friends: ", arrayOfFriends);
          setFriendsList(arrayOfFriends);
       }
    // For fetching friend list
