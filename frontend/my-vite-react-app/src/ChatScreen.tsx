@@ -37,10 +37,13 @@ const ChatScreen = () => {
             onConnect: () => {
                 console.log("connected to websocket");
                 
-                stompClient.subscribe("user/queue/messages", (message) => {
+                stompClient.subscribe(`/topic/messages`, (message) => {
                     const receivedMessage = JSON.parse(message.body);
                     console.log("Received message: ", receivedMessage);
 
+                    /*receivedMessage.sender.username =
+                    receivedMessage.sender.id === user?.id ? user?.username : friend?.username;
+                    */
                     setMessages(prev => [...prev, receivedMessage]);
                 });
             }
@@ -86,7 +89,7 @@ const ChatScreen = () => {
             {messages.map((msg, index) => (
                 <div className = "message-item" key={index}>
                     <p>
-                        <strong>{msg.sender.username}</strong>: {msg.content}
+                        <strong>{msg.sender?.username || msg.senderName}</strong>: {msg.content}
                     </p>
                 </div>
             ))}

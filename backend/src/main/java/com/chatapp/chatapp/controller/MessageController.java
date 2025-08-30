@@ -3,6 +3,8 @@ package com.chatapp.chatapp.controller;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.chatapp.chatapp.dto.MessageDto;
+import com.chatapp.chatapp.mapper.MessageMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.chatapp.chatapp.model.Message;
 import com.chatapp.chatapp.repository.MessageRepository;
 import com.chatapp.chatapp.repository.UserRepository;
+import com.chatapp.chatapp.model.Users;
 
 @RestController
 @RequestMapping("/messaging/api")
@@ -30,7 +33,7 @@ public class MessageController {
     private UserRepository userRepository;
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
-    
+
     @GetMapping("")
     public ResponseEntity<List<Message>> getAllMessages() {
        List<Message> messages = messageRepository.findAll();
@@ -81,15 +84,28 @@ public class MessageController {
         return message;
     }
 
+
     // sending a message to your friend
     @MessageMapping("/chat.private")
     public void sendPrivateMessage(@Payload Message message) {
+        Users sender = userRepository.findById(message.getSender().getId()).
+                orElseThrow(() -> new RuntimeException("sender not found"));
+        Users recipient = userRepository.findById(message.getRecipient().getId()).
+                orElseThrow(() -> new RuntimeException("recipient not found"));
+
+        message.setSender(sender);
+        message.setRecipient(recipient);
         message.setTimestamp(LocalDateTime.now());
         messageRepository.save(message);
+
+        MessageDto dto = MessageMapper.toDTO(message);
+        /*// delivering to recipient
         messagingTemplate.convertAndSendToUser(
                 message.getRecipient().getUsername(),
                 "/queue/messages",
-                message
-        );
+                dto
+        );*/
+        // For testing: broadcast to a public topic
+        messagingTemplate.convertAndSend("/topic/messages", dto);
     }
 }
