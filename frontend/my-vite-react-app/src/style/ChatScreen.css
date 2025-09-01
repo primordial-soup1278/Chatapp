@@ -56,11 +56,28 @@
     flex-direction: column;
 }
 
+
 .message-item {
-    padding: 20px;
-    border: 1px;
-    border-style: solid;
-    border-color: black;
-    background-color: blue;
-    width: 56px;
+  max-width: 20%;
+  padding: 10px 14px;
+  border-radius: 16px;
+  margin: 6px 0;
+  word-wrap: break-word;
+}
+
+/* your own messages */
+.self-message {
+  align-self: flex-end;          /* move to right */
+  background-color: #dcf8c6;     /* WhatsApp-style green */
+  text-align: right;
+  color: black;
+}
+
+/* other people's messages */
+.friend-message {
+  align-self: flex-start;        /* stay on left */
+  background-color: #ffffff;     /* white bubble */
+  border: 1px solid #ddd;        /* light border */
+  text-align: left;
+  color: black;
 }

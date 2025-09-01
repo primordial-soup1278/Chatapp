@@ -15,8 +15,6 @@ const ChatScreen = () => {
     const {user} = useAuth();
     const [messages, setMessages] = useState<Array<any>>([]);
 
-    //TODO: when fetching chat history, we need to be able to fetch it from both the receiver and sender
-    // currently it only fetches messages where user is the sender
     const fetchChatHistory = async () => {
         const res = await fetch(
             `${import.meta.env.VITE_USER_URL.replace("/users","/messaging/api")}/between/${user?.id}/${friend?.id}`,
@@ -29,6 +27,7 @@ const ChatScreen = () => {
     useEffect(() => {
         fetchChatHistory();
         console.log("messages: ",messages);
+        console.log("user: ",user);
     },[user?.id, friend?.id]);
 
     useEffect(() => {
@@ -43,9 +42,6 @@ const ChatScreen = () => {
                     const receivedMessage = JSON.parse(message.body);
                     console.log("Received message: ", receivedMessage);
 
-                    /*receivedMessage.sender.username =
-                    receivedMessage.sender.id === user?.id ? user?.username : friend?.username;
-                    */
                     setMessages(prev => [...prev, receivedMessage]);
                 });
             }
@@ -89,9 +85,9 @@ const ChatScreen = () => {
         {/* chat between user's is displayed here */}
         <div className = "messages-container">
             {messages.map((msg, index) => (
-                <div className = "message-item" key={index}>
+                <div className = {`message-item ${msg.sender?.id === user?.id ? "self-message" : "friend-message"}`} key={index}>
                     <p>
-                        <strong>{msg.sender?.username || msg.senderName}</strong>: {msg.content}
+                        {msg.content}
                     </p>
                 </div>
             ))}
