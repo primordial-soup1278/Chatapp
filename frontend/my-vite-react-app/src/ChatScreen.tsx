@@ -15,6 +15,8 @@ const ChatScreen = () => {
     const {user} = useAuth();
     const [messages, setMessages] = useState<Array<any>>([]);
 
+    //TODO: when fetching chat history, we need to be able to fetch it from both the receiver and sender
+    // currently it only fetches messages where user is the sender
     const fetchChatHistory = async () => {
         const res = await fetch(
             `${import.meta.env.VITE_USER_URL.replace("/users","/messaging/api")}/between/${user?.id}/${friend?.id}`,

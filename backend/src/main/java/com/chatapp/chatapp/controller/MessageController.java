@@ -24,6 +24,8 @@ import com.chatapp.chatapp.repository.MessageRepository;
 import com.chatapp.chatapp.repository.UserRepository;
 import com.chatapp.chatapp.model.Users;
 
+// TODO: private messaging does not work, everything is currently broadcasted
+
 @RestController
 @RequestMapping("/messaging/api")
 public class MessageController {
@@ -53,7 +55,7 @@ public class MessageController {
     @GetMapping("/between/{senderId}/{recipientId}")
     public ResponseEntity<List<Message>> getMessagesBetweenUsers(@PathVariable Long senderId,
                                                                  @PathVariable Long recipientId) {
-        List<Message> messages = messageRepository.findBySenderIdAndRecipientId(senderId, recipientId);
+        List<Message> messages = messageRepository.findConversation(senderId, recipientId);
         return ResponseEntity.ok(messages);
     }
 
