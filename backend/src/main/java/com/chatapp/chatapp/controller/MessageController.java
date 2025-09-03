@@ -2,6 +2,7 @@ package com.chatapp.chatapp.controller;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.chatapp.chatapp.dto.MessageDto;
 import com.chatapp.chatapp.mapper.MessageMapper;
@@ -37,9 +38,13 @@ public class MessageController {
     private SimpMessagingTemplate messagingTemplate;
 
     @GetMapping("")
-    public ResponseEntity<List<Message>> getAllMessages() {
-       List<Message> messages = messageRepository.findAll();
-       return ResponseEntity.ok().body(messages);
+    public ResponseEntity<List<MessageDto>> getAllMessages() {
+       List<MessageDto> dtos = messageRepository.findAll().
+               stream().
+               map(MessageMapper::toDTO).
+               collect(Collectors.toList());
+
+       return ResponseEntity.ok().body(dtos);
     }
 
     // setting a message as read
@@ -53,10 +58,13 @@ public class MessageController {
     }
     // getting messages between two users
     @GetMapping("/between/{senderId}/{recipientId}")
-    public ResponseEntity<List<Message>> getMessagesBetweenUsers(@PathVariable Long senderId,
+    public ResponseEntity<List<MessageDto>> getMessagesBetweenUsers(@PathVariable Long senderId,
                                                                  @PathVariable Long recipientId) {
-        List<Message> messages = messageRepository.findConversation(senderId, recipientId);
-        return ResponseEntity.ok(messages);
+        List<MessageDto> dtos = messageRepository.findConversation(senderId, recipientId).
+                stream().
+                map(MessageMapper::toDTO).
+                toList();
+        return ResponseEntity.ok(dtos);
     }
 
     // deleting a specific message
@@ -75,10 +83,10 @@ public class MessageController {
     // in case I add chat groups in the future
     @MessageMapping("/chat.send")
     @SendTo("/topic/public")
-    public Message sendMessage(@Payload Message message) {
+    public MessageDto sendMessage(@Payload Message message) {
         message.setTimestamp(LocalDateTime.now());
         messageRepository.save(message);
-        return message;
+        return MessageMapper.toDTO(message);
     }
     @MessageMapping("/char.newUser")
     @SendTo("/topic/public")
@@ -101,12 +109,6 @@ public class MessageController {
         messageRepository.save(message);
 
         MessageDto dto = MessageMapper.toDTO(message);
-        /*// delivering to recipient
-        messagingTemplate.convertAndSendToUser(
-                message.getRecipient().getUsername(),
-                "/queue/messages",
-                dto
-        );*/
         // For testing: broadcast to a public topic
         messagingTemplate.convertAndSend("/topic/messages", dto);
     }

@@ -20,6 +20,7 @@ const ChatScreen = () => {
             `${import.meta.env.VITE_USER_URL.replace("/users","/messaging/api")}/between/${user?.id}/${friend?.id}`,
         );
         const history = await res.json();
+        console.log("Chat history: ", history);
         setMessages(history);
     }
 
@@ -41,7 +42,7 @@ const ChatScreen = () => {
                 stompClient.subscribe(`/topic/messages`, (message) => {
                     const receivedMessage = JSON.parse(message.body);
                     console.log("Received message: ", receivedMessage);
-
+                    console.log("rec msg: ", receivedMessage.sender);
                     setMessages(prev => [...prev, receivedMessage]);
                 });
             }
@@ -85,7 +86,7 @@ const ChatScreen = () => {
         {/* chat between user's is displayed here */}
         <div className = "messages-container">
             {messages.map((msg, index) => (
-                <div className = {`message-item ${msg.sender?.id === user?.id ? "self-message" : "friend-message"}`} key={index}>
+                <div className = {`message-item ${msg.id === user?.id ? "self-message" : "friend-message"}`} key={index}>
                     <p>
                         {msg.content}
                     </p>
